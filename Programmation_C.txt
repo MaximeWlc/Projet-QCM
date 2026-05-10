@@ -1,0 +1,64 @@
+Programmation C Fondamentale
+1
+0
+1
+Quel est l'indice de la premiere case d'un tableau de taille N ?
+1
+0
+N
+-1
+b
+Comment appelle-t-on une variable declaree a l'interieur d'une fonction, qui n'est plus accessible hors fonction ?
+Globale
+Statique
+Locale
+Parametre constant
+c
+Quel format utiliser pour manipuler un entier (int) avec printf/scanf ?
+%f
+%c
+%d
+%e
+c
+Quel operateur permet de recuperer l'adresse memoire d'une variable a ?
+*a
+&a
+%a
+@a
+b
+Que contient exactement une variable de type pointeur ?
+Valeur aleatoire
+Adresse memoire
+Copie de variable
+Nom de variable
+b
+Oubli du 'break' dans un switch : consequence ?
+Erreur compil
+Arret programme
+Seul case execute
+Execution des cases suivants
+d
+Fonction pour reserver manuellement de la memoire ?
+alloc()
+sizeof()
+malloc()
+free()
+c
+Acces champ structure via un pointeur ?
+.
+->
+*
+&
+b
+Element indispensable d'une fonction recursive ?
+Condition d'arret
+Boucle TANT QUE
+Variable globale
+Tableau dynamique
+a
+Complexite d'un parcours simple de tableau de taille n ?
+O(1)
+O(n)
+O(log n)
+O(n^2)
+b
