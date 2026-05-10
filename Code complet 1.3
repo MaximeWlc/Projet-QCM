@@ -1,0 +1,226 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+
+#define PASS_PROF "cytech2026"
+
+typedef struct {
+    char intitule[500];
+    char propA[200];
+    char propB[200];
+    char propC[200];
+    char propD[200];
+    char bonnes_reponses[5]; 
+} Question;
+
+typedef struct {
+    char titre[100];
+    int points_negatifs; 
+    int choix_multiple;  
+    int mode_sequentiel; 
+    Question questions[10];
+} QCM;
+
+/* Vide le buffer */
+void vider_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
+/* Fonction de sauvegarde [cite: 51, 57] */
+void sauvegarder_qcm(QCM q) {
+    char nom_f[110];
+    sprintf(nom_f, "%s.txt", q.titre);
+    FILE *f = fopen(nom_f, "w");
+    if (f == NULL) {
+        printf("Erreur lors de la creation du fichier.\n");
+        return;
+    }
+
+    fprintf(f, "%s\n%d\n%d\n%d\n", q.titre, q.points_negatifs, q.choix_multiple, q.mode_sequentiel);
+    for (int i = 0; i < 10; i++) {
+        fprintf(f, "%s\n%s\n%s\n%s\n%s\n%s\n", 
+                q.questions[i].intitule, q.questions[i].propA, q.questions[i].propB, 
+                q.questions[i].propC, q.questions[i].propD, q.questions[i].bonnes_reponses);
+    }
+    fclose(f);
+}
+
+/* Fonction de chargement  */
+int charger_qcm(char *nom_qcm, QCM *q) {
+    char nom_f[110];
+    sprintf(nom_f, "%s.txt", nom_qcm);
+    FILE *f = fopen(nom_f, "r");
+    if (f == NULL) return 0;
+
+    /* Lecture des parametres globaux [cite: 53, 56] */
+    fscanf(f, " %[^\n]\n%d\n%d\n%d\n", q->titre, &q->points_negatifs, &q->choix_multiple, &q->mode_sequentiel);
+    for (int i = 0; i < 10; i++) {
+        fscanf(f, " %[^\n]\n", q->questions[i].intitule);
+        fscanf(f, " %[^\n]\n", q->questions[i].propA);
+        fscanf(f, " %[^\n]\n", q->questions[i].propB);
+        fscanf(f, " %[^\n]\n", q->questions[i].propC);
+        fscanf(f, " %[^\n]\n", q->questions[i].propD);
+        fscanf(f, " %s\n", q->questions[i].bonnes_reponses);
+    }
+    fclose(f);
+    return 1;
+}
+
+void melanger_questions(Question questions[], int taille) {
+    int i, j;
+    Question temp;
+    for (i = taille - 1; i > 0; i--) {
+        j = rand() % (i + 1);
+        temp = questions[i];
+        questions[i] = questions[j];
+        questions[j] = temp;
+    }
+}
+
+void poser_question(Question q, QCM qcm_actuel, float *score, char *reponse_utilisateur) {
+    char choix[10];
+    int saisie_ok = 0;
+
+    printf("\n%s\n", q.intitule);
+    printf("a) %s\n", q.propA);
+    printf("b) %s\n", q.propB);
+    printf("c) %s\n", q.propC);
+    printf("d) %s\n", q.propD);
+
+    if (qcm_actuel.mode_sequentiel == 0) {
+        printf("0) Passer la question\n"); /* [cite: 64] */
+    }
+
+    while (!saisie_ok) {
+        printf("Votre choix : ");
+        if (scanf(" %9s", choix) != 1) {
+            vider_buffer();
+            continue;
+        }
+
+        if (strcmp(choix, "0") == 0) {
+            if (qcm_actuel.mode_sequentiel == 1) {
+                printf("Erreur : Le mode sequentiel t'oblige a repondre.\n"); /* [cite: 55] */
+            } else {
+                saisie_ok = 1;
+            }
+        } else {
+            saisie_ok = 1;
+        }
+    }
+
+    strcpy(reponse_utilisateur, choix);
+
+    if (strcmp(choix, q.bonnes_reponses) == 0) {
+        *score += 2.0;
+    } else if (strcmp(choix, "0") != 0 && qcm_actuel.points_negatifs == 1) {
+        *score -= 1.0; /* [cite: 54] */
+    }
+}
+
+void lancer_quizz(QCM mon_qcm) {
+    float score = 0.0;
+    char reponses_joueur[10][10];
+    int i;
+
+    melanger_questions(mon_qcm.questions, 10);
+    printf("\n--- DEBUT DU QCM : %s ---\n", mon_qcm.titre);
+
+    for (i = 0; i < 10; i++) {
+        printf("\nQuestion %d/10 :", i + 1);
+        poser_question(mon_qcm.questions[i], mon_qcm, &score, reponses_joueur[i]);
+    }
+
+    if (score < 0.0) score = 0.0;
+    printf("\nNote finale : %.2f / 20.00\n", score); /* [cite: 65, 66] */
+}
+
+void creer_qcm() {
+    QCM n;
+    int i;
+    printf("\nNom du QCM (sans espace) : ");
+    scanf("%s", n.titre);
+
+    printf("Points negatifs (1=Oui, 0=Non) : "); scanf("%d", &n.points_negatifs);
+    printf("Choix multiples (1=Oui, 0=Non) : "); scanf("%d", &n.choix_multiple);
+    printf("Mode sequentiel (1=Oui, 0=Non) : "); scanf("%d", &n.mode_sequentiel);
+
+    for (i = 0; i < 10; i++) {
+        printf("\nQ%d Enonce : ", i+1); scanf(" %[^\n]", n.questions[i].intitule);
+        printf("Prop a : "); scanf(" %[^\n]", n.questions[i].propA);
+        printf("Prop b : "); scanf(" %[^\n]", n.questions[i].propB);
+        printf("Prop c : "); scanf(" %[^\n]", n.questions[i].propC);
+        printf("Prop d : "); scanf(" %[^\n]", n.questions[i].propD);
+        printf("Bonne(s) reponse(s) (ex: a ou ab) : "); scanf("%s", n.questions[i].bonnes_reponses);
+    }
+    
+    sauvegarder_qcm(n); /* Appel de la fonction de sauvegarde */
+    printf("QCM %s enregistre avec succes.\n", n.titre);
+}
+
+void mode_etudiant() {
+    char nom[100];
+    QCM q;
+    printf("\n--- ESPACE ETUDIANT ---\n");
+    printf("Nom du QCM a charger (ex: Programmation) : ");
+    scanf("%s", nom);
+
+    if (charger_qcm(nom, &q)) { /* Appel de la fonction de chargement */
+        lancer_quizz(q);
+    } else {
+        printf("Erreur : Le fichier %s.txt est introuvable.\n", nom);
+    }
+}
+
+void mode_enseignant() {
+    char pass[50];
+    int choix;
+
+    printf("\nMot de passe : ");
+    scanf("%s", pass);
+    if (strcmp(pass, PASS_PROF) != 0) {
+        printf("Acces refuse.\n");
+        return;
+    }
+
+    do {
+        printf("\n--- MENU ENSEIGNANT ---\n");
+        printf("1. Creer un nouveau QCM\n");
+        printf("2. Retour\nChoix : ");
+        if (scanf("%d", &choix) != 1) {
+            vider_buffer();
+            continue;
+        }
+
+        if (choix == 1) creer_qcm();
+    } while (choix != 2);
+}
+
+int main() {
+    int choix;
+    srand(time(NULL));
+
+    do {
+        printf("\n=== LOGICIEL QCM CY TECH ===\n");
+        printf("1. Mode Etudiant\n");
+        printf("2. Mode Enseignant\n");
+        printf("3. Quitter\n");
+        printf("Votre choix : ");
+        
+        if (scanf("%d", &choix) != 1) {
+            vider_buffer();
+            continue;
+        }
+
+        switch(choix) {
+            case 1: mode_etudiant(); break;
+            case 2: mode_enseignant(); break;
+            case 3: break;
+        }
+    } while (choix != 3);
+
+    return 0;
+}
