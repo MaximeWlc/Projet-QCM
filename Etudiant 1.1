@@ -1,0 +1,456 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+
+#define PASS_PROF "cytech2026"
+
+typedef struct {
+    char intitule[500];
+    char propA[200];
+    char propB[200];
+    char propC[200];
+    char propD[200];
+    char bonne_reponse;
+    int a_point_negatif;
+} Question;
+
+/* Vide le buffer pour eviter les boucles infinies sur les mauvaises saisies */
+void vider_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
+void melanger_questions(Question qcm[], int taille) {
+    int i, j;
+    Question temp;
+    for (i = taille - 1; i > 0; i--) {
+        j = rand() % (i + 1);
+        temp = qcm[i];
+        qcm[i] = qcm[j];
+        qcm[j] = temp;
+    }
+}
+
+void poser_question(Question q, float *score, char *reponse_utilisateur) {
+    char choix;
+    int tentatives = 0;
+    int saisie_ok = 0;
+
+    if (q.a_point_negatif == 1) {
+        printf("[ATTENTION : Points negatifs en cas d'erreur (-0.5)]\n");
+    }
+
+    printf("%s\n", q.intitule);
+    printf("a) %s\n", q.propA);
+    printf("b) %s\n", q.propB);
+    printf("c) %s\n", q.propC);
+    printf("d) %s\n", q.propD);
+
+    while (tentatives < 2 && !saisie_ok) {
+        printf("Votre choix (a, b, c ou d) : ");
+        if (scanf(" %c", &choix) != 1) {
+            vider_buffer();
+            tentatives++;
+            continue;
+        }
+        
+        choix = tolower(choix);
+
+        if (choix >= 'a' && choix <= 'd') {
+            saisie_ok = 1;
+        } else {
+            printf("Erreur : '%c' n'est pas une option valide.\n", choix);
+            vider_buffer();
+            tentatives++;
+        }
+    }
+
+    if (!saisie_ok) {
+        printf("Saisies invalides repetees. Passage a la question suivante.\n");
+        choix = 'z'; 
+    } else {
+        vider_buffer(); 
+    }
+
+    *reponse_utilisateur = choix;
+
+    if (choix == q.bonne_reponse) {
+        *score += 1.0;
+    } else if (q.a_point_negatif == 1) {
+        *score -= 0.5;
+    }
+    printf("\n");
+}
+
+void lancer_quizz(Question qcm[], char *nom_qcm) {
+    float score = 0.0;
+    char reponses_joueur[10];
+    int i;
+
+    melanger_questions(qcm, 10);
+
+    printf("\n--- DEBUT DU %s ---\n\n", nom_qcm);
+
+    for (i = 0; i < 10; i++) {
+        printf("Question %d/10 :\n", i + 1);
+        poser_question(qcm[i], &score, &reponses_joueur[i]);
+    }
+
+    if (score < 0.0) {
+        score = 0.0;
+    }
+
+    printf("--- RESULTATS ---\n");
+    printf("Votre score final est : %.2f / 10.00\n\n", score);
+
+    printf("--- CORRIGE DETAILLE ---\n");
+    for (i = 0; i < 10; i++) {
+        printf("Q%d : ", i + 1);
+        if (reponses_joueur[i] == qcm[i].bonne_reponse) {
+            printf("Correct (%c)\n", qcm[i].bonne_reponse);
+        } else if (reponses_joueur[i] == 'z') {
+            printf("Faux. Saisie annulee, la bonne reponse etait '%c'.\n", qcm[i].bonne_reponse);
+        } else {
+            printf("Faux. Vous avez mis '%c', la bonne reponse etait '%c'.\n", reponses_joueur[i], qcm[i].bonne_reponse);
+        }
+    }
+}
+
+/* --- MODE ETUDIANT --- */
+void mode_etudiant(Question q1[], Question q2[], Question q3[]) {
+    char prenom[50], nom[50], mdp_saisi[100], mdp_attendu[100];
+    int i, trouve = 0;
+
+    /* Base de donnees simulee pour la demonstration */
+    char liste_prenoms[3][50] = {"Maxime", "Jean", "Alice"};
+    char liste_noms[3][50] = {"Welsch", "Dupont", "Martin"};
+
+    printf("\n--- ESPACE ETUDIANT ---\n");
+    printf("Tapez 0 pour annuler a tout moment.\n");
+    
+    printf("Prenom : ");
+    scanf("%s", prenom);
+    if (strcmp(prenom, "0") == 0) return;
+
+    printf("Nom : ");
+    scanf("%s", nom);
+    if (strcmp(nom, "0") == 0) return;
+
+    /* Verification de l'identite */
+    for (i = 0; i < 3; i++) {
+        if (strcmp(prenom, liste_prenoms[i]) == 0 && strcmp(nom, liste_noms[i]) == 0) {
+            trouve = 1;
+            /* Creation du mot de passe attendu (ex: M.Welsch) */
+            sprintf(mdp_attendu, "%c.%s", toupper(prenom[0]), nom);
+            break;
+        }
+    }
+
+    if (!trouve) {
+        printf("Eleve introuvable.\n");
+        return;
+    }
+
+    printf("Mot de passe : ");
+    scanf("%s", mdp_saisi);
+    if (strcmp(mdp_saisi, "0") == 0) return;
+
+    if (strcmp(mdp_saisi, mdp_attendu) != 0) {
+        printf("Mot de passe incorrect.\n");
+        return;
+    }
+
+    printf("\nConnexion reussie. Bienvenue %s !\n", prenom);
+
+    /* Attribution aleatoire du QCM par la machine */
+    int qcm_attribue = (rand() % 3) + 1;
+    printf("La machine vous a attribue aleatoirement le QCM %d.\n", qcm_attribue);
+
+    if (qcm_attribue == 1) {
+        lancer_quizz(q1, "QCM 1");
+    } else if (qcm_attribue == 2) {
+        lancer_quizz(q2, "QCM 2");
+    } else {
+        lancer_quizz(q3, "QCM 3");
+    }
+}
+
+void creer_qcm() {
+    FILE *fichier = NULL;
+    char nom[50], nom_f[100], carac_choix;
+    int i, nb_negatifs = 0, valide;
+
+    printf("\nNom du QCM (un mot sans espace, ou tapez 0 pour annuler) : ");
+    scanf("%s", nom);
+    
+    if (strcmp(nom, "0") == 0) {
+        printf("Creation annulee.\n");
+        return;
+    }
+
+    sprintf(nom_f, "%s.txt", nom);
+    fichier = fopen(nom_f, "w");
+
+    if (fichier == NULL) {
+        printf("Erreur de creation de fichier.\n");
+        return;
+    }
+
+    printf("\nREGLE : Vous devez definir EXACTEMENT 4 questions a points negatifs sur les 10.\n");
+
+    for (i = 0; i < 10; i++) {
+        Question q;
+        int questions_restantes = 10 - i;
+        int negatifs_restants = 4 - nb_negatifs;
+
+        printf("\n--- Question %d/10 ---\n", i + 1);
+        printf("Enonce : ");
+        scanf(" %[^\n]", q.intitule);
+        printf("Prop a : "); scanf(" %[^\n]", q.propA);
+        printf("Prop b : "); scanf(" %[^\n]", q.propB);
+        printf("Prop c : "); scanf(" %[^\n]", q.propC);
+        printf("Prop d : "); scanf(" %[^\n]", q.propD);
+
+        valide = 0;
+        while (!valide) {
+            printf("Bonne reponse (a, b, c ou d) : ");
+            scanf(" %c", &carac_choix);
+            carac_choix = tolower(carac_choix);
+            if (carac_choix >= 'a' && carac_choix <= 'd') {
+                q.bonne_reponse = carac_choix;
+                valide = 1;
+            } else {
+                printf("Erreur : Saisissez uniquement a, b, c ou d.\n");
+                vider_buffer();
+            }
+        }
+        vider_buffer();
+
+        if (negatifs_restants == questions_restantes) {
+            printf("Il manque %d questions a points negatifs. Celle-ci le sera obligatoirement.\n", negatifs_restants);
+            q.a_point_negatif = 1;
+            nb_negatifs++;
+        } else if (nb_negatifs == 4) {
+            printf("Quota de 4 questions a points negatifs atteint. Celle-ci n'en aura pas.\n");
+            q.a_point_negatif = 0;
+        } else {
+            valide = 0;
+            while (!valide) {
+                printf("Points negatifs ? (1 = Oui, 0 = Non) [Actuellement : %d/4] : ", nb_negatifs);
+                if (scanf("%d", &q.a_point_negatif) != 1) {
+                    printf("Erreur : Tapez 0 ou 1.\n");
+                    vider_buffer();
+                    continue;
+                }
+                if (q.a_point_negatif == 1) {
+                    nb_negatifs++;
+                    valide = 1;
+                } else if (q.a_point_negatif == 0) {
+                    valide = 1;
+                } else {
+                    printf("Saisie invalide. Tapez 0 ou 1.\n");
+                }
+            }
+        }
+
+        fprintf(fichier, "%s\n%s\n%s\n%s\n%s\n%c\n%d\n", 
+                q.intitule, q.propA, q.propB, q.propC, q.propD, q.bonne_reponse, q.a_point_negatif);
+    }
+    
+    fclose(fichier);
+    printf("QCM sauvegarde avec succes.\n");
+}
+
+void modifier_qcm(Question qcm[], char *nom) {
+    int num;
+    int valide;
+    char carac_choix;
+
+    printf("\n--- Modification du %s ---\n", nom);
+    printf("Quelle question modifier (1 a 10, ou 0 pour annuler) ? : ");
+    if (scanf("%d", &num) != 1) {
+        vider_buffer();
+        printf("Saisie invalide.\n");
+        return;
+    }
+
+    if (num == 0) {
+        printf("Modification annulee.\n");
+        return;
+    }
+
+    if (num < 1 || num > 10) {
+        printf("Numero de question inexistant.\n");
+        return;
+    }
+
+    int i = num - 1;
+    printf("Nouvel enonce : "); scanf(" %[^\n]", qcm[i].intitule);
+    printf("Prop a : "); scanf(" %[^\n]", qcm[i].propA);
+    printf("Prop b : "); scanf(" %[^\n]", qcm[i].propB);
+    printf("Prop c : "); scanf(" %[^\n]", qcm[i].propC);
+    printf("Prop d : "); scanf(" %[^\n]", qcm[i].propD);
+    
+    valide = 0;
+    while (!valide) {
+        printf("Bonne reponse (a, b, c ou d) : ");
+        scanf(" %c", &carac_choix);
+        carac_choix = tolower(carac_choix);
+        if (carac_choix >= 'a' && carac_choix <= 'd') {
+            qcm[i].bonne_reponse = carac_choix;
+            valide = 1;
+        } else {
+            printf("Saisie invalide.\n");
+            vider_buffer();
+        }
+    }
+    vider_buffer();
+
+    valide = 0;
+    while (!valide) {
+        printf("Points negatifs (1 = Oui, 0 = Non) : ");
+        if (scanf("%d", &qcm[i].a_point_negatif) != 1) {
+            vider_buffer();
+            continue;
+        }
+        if (qcm[i].a_point_negatif == 0 || qcm[i].a_point_negatif == 1) {
+            valide = 1;
+        } else {
+            printf("Saisie invalide.\n");
+        }
+    }
+
+    printf("Question %d mise a jour.\n", num);
+}
+
+void mode_enseignant(Question q1[], Question q2[], Question q3[]) {
+    char pass[50];
+    int choix;
+
+    printf("\n--- ACCES PROFESSEUR ---\nMot de passe (ou tapez 0 pour annuler) : ");
+    scanf("%s", pass);
+
+    if (strcmp(pass, "0") == 0) {
+        printf("Retour au menu principal.\n");
+        return;
+    }
+
+    if (strcmp(pass, PASS_PROF) != 0) {
+        printf("Mot de passe incorrect.\n");
+        return;
+    }
+
+    do {
+        printf("\n--- MENU ENSEIGNANT ---\n");
+        printf("1. Modifier QCM 1\n");
+        printf("2. Modifier QCM 2\n");
+        printf("3. Modifier QCM 3\n");
+        printf("4. Creer un fichier QCM\n");
+        printf("5. Tester un QCM\n");
+        printf("6. Retour\n");
+        printf("Choix : ");
+        
+        if (scanf("%d", &choix) != 1) {
+            vider_buffer();
+            continue;
+        }
+
+        switch (choix) {
+            case 1: modifier_qcm(q1, "QCM 1"); break;
+            case 2: modifier_qcm(q2, "QCM 2"); break;
+            case 3: modifier_qcm(q3, "QCM 3"); break;
+            case 4: creer_qcm(); break;
+            case 5: 
+                printf("Tester quel QCM (1, 2 ou 3, ou 0 pour annuler) ? : ");
+                int t; 
+                if (scanf("%d", &t) == 1) {
+                    if (t == 0) break;
+                    if(t == 1) lancer_quizz(q1, "QCM 1");
+                    else if(t == 2) lancer_quizz(q2, "QCM 2");
+                    else if(t == 3) lancer_quizz(q3, "QCM 3");
+                    else printf("QCM introuvable.\n");
+                } else {
+                    vider_buffer();
+                }
+                break;
+            case 6: break;
+            default: printf("Choix invalide.\n");
+        }
+    } while (choix != 6);
+}
+
+int main() {
+    int choix;
+    srand(time(NULL));
+
+    Question qcm1[10] = {
+        {"Quel est l'indice de la premiere case d'un tableau de taille N ?", "1", "0", "N", "-1", 'b', 1},
+        {"Comment appelle-t-on une variable declaree a l'interieur d'une fonction, qui n'est plus accessible hors fonction ?", "Globale", "Statique", "Locale", "Parametre constant", 'c', 1},
+        {"Quel format utiliser pour manipuler un entier (int) avec printf/scanf ?", "%f", "%c", "%d", "%e", 'c', 1},
+        {"Quel operateur permet de recuperer l'adresse memoire d'une variable a ?", "*a", "&a", "%a", "@a", 'b', 1},
+        {"Que contient exactement une variable de type pointeur ?", "Valeur aleatoire", "Adresse memoire", "Copie de variable", "Nom de variable", 'b', 0},
+        {"Oubli du 'break' dans un switch : consequence ?", "Erreur compil", "Arret programme", "Seul case execute", "Execution des cases suivants", 'd', 0},
+        {"Fonction pour reserver manuellement de la memoire ?", "alloc()", "sizeof()", "malloc()", "free()", 'c', 0},
+        {"Acces champ structure via un pointeur ?", ".", "->", "*", "&", 'b', 0},
+        {"Element indispensable d'une fonction recursive ?", "Condition d'arret", "Boucle TANT QUE", "Variable globale", "Tableau dynamique", 'a', 0},
+        {"Complexite d'un parcours simple de tableau de taille n ?", "O(1)", "O(n)", "O(log n)", "O(n^2)", 'b', 0}
+    };
+
+    Question qcm2[10] = {
+        {"Caractere de fin de chaine en C ?", "\\n", "\\0", "\\end", "Espace", 'b', 1},
+        {"Difference principale procedure/fonction ?", "Pas de parametres", "Aucun resultat retourne", "Une seule boucle", "Pas d'appel main", 'b', 1},
+        {"Boucle si nombre d'iterations connu a l'avance ?", "TANT QUE", "POUR", "REPETER", "Recursive", 'b', 1},
+        {"Symbole d'affectation en pseudo-code ?", "=", "==", "<-", ":=", 'c', 1},
+        {"Operateur pour acceder a la valeur pointee ?", "&", "*", "->", "#", 'b', 0},
+        {"Acces au 3eme element d'un tableau T ?", "T[3]", "T(3)", "T[2]", "T(2)", 'c', 0},
+        {"Role d'un compilateur (gcc) ?", "Executer ligne par ligne", "Traduire en C", "Traduire en binaire", "Sauvegarder", 'c', 0},
+        {"Creer un alias de type ?", "struct", "alias", "typedef", "enum", 'c', 0},
+        {"Erreur si trop d'appels recursifs ?", "Segmentation fault", "Stack overflow", "Memory leak", "Div par zero", 'b', 0},
+        {"Regle 'espace-temps' ?", "Court = Rapide", "Temporelle = Spatiale", "Vitesse coute memoire", "Moins memoire = Rapide", 'c', 0}
+    };
+
+    Question qcm3[10] = {
+        {"Operateur 'EST DIFFERENT DE' en C ?", "!=", "<>", "NOT=", "==", 'a', 1},
+        {"Utilité du FIN SI en pseudo-code ?", "Arret programme", "Indiquer fin du bloc", "Bloc alternatif", "Relancer condition", 'b', 1},
+        {"Caracteristique fondamentale fonction recursive ?", "Rapide", "Retourne 0", "S'appelle elle-meme", "Sans parametre", 'c', 1},
+        {"Consequence du RETOURNER dans une fonction ?", "Pause", "Transmet valeur et arrete", "Continue jusqu'a FIN", "Plusieurs variables", 'b', 1},
+        {"Moment de l'evaluation de condition TANT QUE ?", "Avant instructions", "Apres instructions", "Au milieu", "Si erreur", 'a', 0},
+        {"Signification d'un warning ?", "Echec compil", "Erreur syntaxe grave", "Succes mais souci potentiel", "Code parfait", 'c', 0},
+        {"Oubli de liberer la memoire allouee ?", "Correction auto", "Plante direct", "Fuite memoire", "Garbage collector", 'c', 0},
+        {"Variable pour gerer tableau dynamique 2D ?", "Statique", "int *", "int **", "Structure", 'c', 0},
+        {"Organisation des champs en structure (memoire) ?", "Aleatoire", "Octet vide auto", "Bourrage (padding)", "Compression", 'c', 0},
+        {"Complexite de Fibonacci recursif naif ?", "O(n)", "O(n^2)", "O(log n)", "O(2^n)", 'd', 0}
+    };
+
+    do {
+        printf("\n=== LOGICIEL QCM CY TECH ===\n");
+        printf("1. Mode Etudiant\n");
+        printf("2. Mode Enseignant\n");
+        printf("3. Quitter\n");
+        printf("Votre choix : ");
+        
+        if (scanf("%d", &choix) != 1) {
+            printf("Erreur de saisie.\n");
+            vider_buffer(); 
+            continue;
+        }
+
+        switch(choix) {
+            case 1: 
+                mode_etudiant(qcm1, qcm2, qcm3); 
+                break;
+            case 2: 
+                mode_enseignant(qcm1, qcm2, qcm3); 
+                break;
+            case 3: 
+                printf("Arret du programme.\n"); 
+                break;
+            default: 
+                printf("Choix inexistant.\n");
+        }
+    } while (choix != 3);
+
+    return 0;
+}
