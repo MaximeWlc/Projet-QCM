@@ -1,0 +1,64 @@
+Logique et Architecture
+0
+0
+0
+Caractere de fin de chaine en C ?
+\n
+\0
+\end
+Espace
+b
+Difference principale procedure/fonction ?
+Pas de parametres
+Aucun resultat retourne
+Une seule boucle
+Pas d'appel main
+b
+Boucle si nombre d'iterations connu a l'avance ?
+TANT QUE
+POUR
+REPETER
+Recursive
+b
+Symbole d'affectation en pseudo-code ?
+=
+==
+<-
+:=
+c
+Operateur pour acceder a la valeur pointee ?
+&
+*
+->
+#
+b
+Acces au 3eme element d'un tableau T ?
+T[3]
+T(3)
+T[2]
+T(2)
+c
+Role d'un compilateur (gcc) ?
+Executer ligne par ligne
+Traduire en C
+Traduire en binaire
+Sauvegarder
+c
+Creer un alias de type ?
+struct
+alias
+typedef
+enum
+c
+Erreur si trop d'appels recursifs ?
+Segmentation fault
+Stack overflow
+Memory leak
+Div par zero
+b
+Regle 'espace-temps' ?
+Court = Rapide
+Temporelle = Spatiale
+Vitesse coute memoire
+Moins memoire = Rapide
+c
