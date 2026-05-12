@@ -1,1 +1,16 @@
+# Variables
+CC = gcc
+CFLAGS = -Wall -Wextra
+EXEC = projet_qcm
+SRC = main.c qcm.c
 
+# Regle par defaut
+all: $(EXEC)
+
+# Compilation de l'executable
+$(EXEC): $(SRC) qcm.h
+	$(CC) $(CFLAGS) $(SRC) -o $(EXEC)
+
+# Nettoyage des fichiers generes
+clean:
+	rm -f $(EXEC)
