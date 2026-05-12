@@ -1,7 +1,7 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -Wextra
-EXEC = projet_qcm
+EXEC = ProjetInfo
 SRC = main.c qcm.c
 
 # Regle par defaut
