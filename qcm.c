@@ -154,6 +154,12 @@ void creer_qcm() {
     
     sauvegarder_qcm(n);
     printf("QCM %s enregistre avec succes.\n", n.titre);
+    /* Ajout du nouveau QCM dans le fichier index */
+    FILE *f_liste = fopen("liste_qcm.txt", "a");
+    if (f_liste != NULL) {
+        fprintf(f_liste, "%s\n", n.titre);
+        fclose(f_liste);
+    }
 }
 
 void mode_etudiant() {
