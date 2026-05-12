@@ -164,13 +164,25 @@ void creer_qcm() {
 
 void mode_etudiant() {
     char nom[100];
+    char nom_lu[100];
     QCM q;
+    FILE *f_liste;
+
     printf("\n--- ESPACE ETUDIANT ---\n");
     printf("QCM disponibles sur le serveur :\n");
-    printf("- Programmation_C\n");
-    printf("- Algorithmique\n");
-    printf("- Logique_Architecture\n");
+
+    /* Lecture du fichier index pour afficher la liste */
+    f_liste = fopen("liste_qcm.txt", "r");
+    if (f_liste != NULL) {
+        while (fscanf(f_liste, "%s", nom_lu) == 1) {
+            printf("- %s\n", nom_lu);
+        }
+        fclose(f_liste);
+    } else {
+        printf("- (Aucun QCM trouve ou fichier index manquant)\n");
+    }
     printf("------------------------------\n");
+
     printf("Nom du QCM a charger (sans l'extension .txt) : ");
     scanf("%s", nom);
 
