@@ -5,11 +5,13 @@
 #include <time.h>
 #include "qcm.h"
 
+/* Vide le buffer se saisie standard pour eviter les boucles infinies suite à de mauvaises entrées */
 void vider_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
+/* Sauvegarde les donnees d'une structure QCM dans un fichier texte portant le nom du titre */
 void sauvegarder_qcm(QCM q) {
     char nom_f[110];
     int i;
@@ -28,7 +30,7 @@ void sauvegarder_qcm(QCM q) {
     }
     fclose(f);
 }
-
+/* Charge un QCM depuis un fichier texte dans la structure. Retourne 1 en cas de succes, 0 si le fichier est introuvable */
 int charger_qcm(char *nom_qcm, QCM *q) {
     char nom_f[110];
     int i;
@@ -48,7 +50,7 @@ int charger_qcm(char *nom_qcm, QCM *q) {
     fclose(f);
     return 1;
 }
-
+/* Melange l'ordre des questions dans le tableau pour rendre l'ordre aleatoire a chaque execution */
 void melanger_questions(Question questions[], int taille) {
     int i, j;
     Question temp;
@@ -59,7 +61,7 @@ void melanger_questions(Question questions[], int taille) {
         questions[j] = temp;
     }
 }
-
+/* Affiche l'enonce et les propositions, recupere le choix du joueur et met a jour le score selon les regles du QCM */
 void poser_question(Question q, QCM qcm_actuel, float *score, char *reponse_utilisateur) {
     char choix[10];
     int saisie_ok = 0;
@@ -100,7 +102,7 @@ void poser_question(Question q, QCM qcm_actuel, float *score, char *reponse_util
         *score -= 1.0;
     }
 }
-
+/* Gere le deroulement d'un test complet : pose les 10 questions, calcule la note sur 20 et affiche le corrige */
 void lancer_quizz(QCM mon_qcm) {
     float score = 0.0;
     char reponses_joueur[10][10];
@@ -131,7 +133,7 @@ void lancer_quizz(QCM mon_qcm) {
         }
     }
 }
-
+/* Interface de saisie permettant a l'enseignant de creer un nouveau QCM, definir ses regles et ses 10 questions */
 void creer_qcm() {
     QCM n;
     int i;
@@ -161,7 +163,7 @@ void creer_qcm() {
         fclose(f_liste);
     }
 }
-
+/* Menu de l'etudiant : lit le fichier d'index pour afficher les QCM disponibles et permet d'en charger un */
 void mode_etudiant() {
     char nom[100];
     char nom_lu[100];
@@ -192,7 +194,7 @@ void mode_etudiant() {
         printf("Erreur : Le fichier %s.txt est introuvable.\n", nom);
     }
 }
-
+/* Menu securise de l'enseignant : verifie le mot de passe avant d'autoriser la creation de nouveaux QCM */
 void mode_enseignant() {
     char pass[50];
     int choix;
