@@ -1,4 +1,29 @@
 
+RAPPORT DE PROJET INFORMATIQUE
+
+Équipe et sujet
+Projet d'informatique en langage C réalisé par Maxime Welsch et Loïc. 
+
+Organisation et flux de travail
+Le travail a été fait en plusieurs parties. Chaque membre du groupe faisait une partie. 
+Puis, nous avons utilisé Git pour mettre en commun et centraliser nos codes. 
+
+Fuites de mémoire : Repérées via Valgrind lors des allocations dynamiques. Résolues en restructurant les fonctions de libération (free) pour sécuriser chaque cycle.
+
+Erreurs de segmentation : Causées par de mauvaises manipulations de pointeurs. 
+Conflits de version : Dus à des modifications simultanées. Résolus par des points de synchronisation réguliers et une communication directe.
+
+Résultats
+L'application est pleinement fonctionnelle, valide l'intégralité des tests du cahier des charges, et ne présente aucun crash. 
+
+
+
+
+
+
+
+
+
 Un rapport écrit est requis, contenant une brève description de 
 l’équipe et du sujet. Il décrira les différents problèmes rencontrés, les 
 solutions apportées et les résultats. L’idée principale est de montrer 
