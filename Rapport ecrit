@@ -1,34 +1,30 @@
 
 RAPPORT DE PROJET INFORMATIQUE
 
-Équipe et sujet
-Projet d'informatique en langage C réalisé par Maxime Welsch et Loïc. 
+Description de l’équipe et du sujet
+Ce projet a été réalisé en binôme par Maxime Welsch et Loïc. L’objectif était de développer un programme robuste en langage C respectant un cahier des charges précis. 
 
-Organisation et flux de travail
-Conception Initiale : Une phase de reflexion commune pour definir l'architecture du code. 
+Phase de conception : Réflexion commune pour poser les bases de l'architecture, définir les structures de données et les prototypes de fonctions.
+Répartition des tâches : Découpage du projet en modules indépendants pour travailler chacun de son coté (Loïc sur une partie des fonctions, Maxime sur l’autre).
+Suivi et Git : Utilisation de Git pour centraliser le code. Nous avons fait des points réguliers pour assembler nos blocs et vérifier la cohérence globale.
 
 
+Problèmes rencontrés et solutions
 
+Erreurs de segmentation : Plantages du programme lors de la manipulation des pointeurs.
+  Solution : Ajout de vérifications de sécurité (if (ptr != NULL)) avant chaque utilisation de pointeur.
 
-Erreurs de segmentation : Causées par de mauvaises manipulations de pointeurs. 
-Conflits de version : Dus à des modifications simultanées. Résolus par des points de synchronisation réguliers et une communication directe.
+Conflits de version : Problèmes lors de la fusion de nos codes sur Git.
+  Solution : Amélioration de la communication et meilleure répartition des fichiers pour ne pas modifier les mêmes lignes en même temps.
 
 Résultats
-L'application est pleinement fonctionnelle, valide l'intégralité des tests du cahier des charges, et ne présente aucun crash. 
+Le programme final remplit toutes les exigences du cahier des charges. L’application est stable et rapide. 
 
 
 
 
 
 
-
-
-
-Un rapport écrit est requis, contenant une brève description de 
-l’équipe et du sujet. Il décrira les différents problèmes rencontrés, les 
-solutions apportées et les résultats. L’idée principale est de montrer 
-comment l’équipe s’est organisée, et quel était le flux de travail 
-appliqué pour atteindre les objectifs du cahier des charges
 
 
 
